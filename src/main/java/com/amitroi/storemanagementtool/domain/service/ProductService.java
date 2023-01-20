@@ -21,8 +21,12 @@ public class ProductService {
     return productRepository.findAll();
   }
 
-  public Optional<Product> findProduct(Long productId) {
-    return productRepository.findById(productId);
+  public Product findProduct(Long productId) {
+    Optional<Product> byId = productRepository.findById(productId);
+    if (byId.isEmpty()) {
+      throw new RuntimeException("Product does not exist.");
+    }
+    return byId.get();
   }
 
   public Product saveProduct(Product newProduct) {
@@ -40,6 +44,10 @@ public class ProductService {
       updatedProduct.setId(id);
     }
     return productRepository.save(updatedProduct);
+  }
+
+  public void deleteProduct(Long id) {
+    productRepository.deleteById(id);
   }
 
 }
