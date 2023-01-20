@@ -1,4 +1,4 @@
-package com.amitroi.storemanagementtool.domain.domain.service;
+package com.amitroi.storemanagementtool.domain.service;
 
 import static java.util.Objects.isNull;
 
