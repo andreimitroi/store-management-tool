@@ -7,6 +7,7 @@ import com.amitroi.storemanagementtool.domain.mapper.ProductMapper;
 import com.amitroi.storemanagementtool.domain.service.ProductService;
 import java.net.URI;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -35,12 +36,12 @@ public class ProductController {
   }
 
   @GetMapping("/{productId}")
-  public ResponseEntity<ProductDto> getProduct(@PathVariable("productId") Long id) {
+  public ResponseEntity<ProductDto> getProduct(@PathVariable("productId") UUID id) {
     return ResponseEntity.ok(productMapper.productToProductDto(productService.findProduct(id)));
   }
 
   @DeleteMapping("/{productId}")
-  public ResponseEntity<String> deleteProduct(@PathVariable("productId") Long id) {
+  public ResponseEntity<String> deleteProduct(@PathVariable("productId") UUID id) {
     productService.deleteProduct(id);
     return ResponseEntity.ok().build();
   }
@@ -50,7 +51,7 @@ public class ProductController {
     Product toBeAdded = productMapper.newProductRequestToProduct(newProductRequest);
     Product addedProduct = productService.saveProduct(toBeAdded);
     URI location = UriComponentsBuilder.fromPath("/api/v1/products/{productId}")
-        .buildAndExpand(addedProduct.getId().toString()).toUri();
+        .buildAndExpand(addedProduct.getUuid().toString()).toUri();
     return ResponseEntity.created(location).build();
   }
 

@@ -1,16 +1,18 @@
 package com.amitroi.storemanagementtool.domain.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.math.BigDecimal;
 import java.util.Objects;
-import lombok.Data;
+import java.util.UUID;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.ToString.Exclude;
 import org.hibernate.Hibernate;
 
 @Entity
@@ -20,9 +22,14 @@ import org.hibernate.Hibernate;
 @RequiredArgsConstructor
 public class Product {
 
+  @Exclude
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(nullable = false)
   private Long id;
+  @Column(nullable = false, unique = true)
+  private UUID uuid;
+  @Column(nullable = false)
   private String name;
   private String description;
   private BigDecimal price;

@@ -6,6 +6,7 @@ import com.amitroi.storemanagementtool.domain.entity.Product;
 import com.amitroi.storemanagementtool.domain.repository.ProductRepository;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -21,8 +22,8 @@ public class ProductService {
     return productRepository.findAll();
   }
 
-  public Product findProduct(Long productId) {
-    Optional<Product> byId = productRepository.findById(productId);
+  public Product findProduct(UUID productId) {
+    Optional<Product> byId = productRepository.findByUuid(productId);
     if (byId.isEmpty()) {
       throw new RuntimeException("Product does not exist.");
     }
@@ -30,7 +31,13 @@ public class ProductService {
   }
 
   public Product saveProduct(Product newProduct) {
+    assignUuid(newProduct);
     return productRepository.save(newProduct);
+  }
+
+  private void assignUuid(Product newProduct) {
+    UUID uuid = UUID.randomUUID();
+    newProduct.setUuid(uuid);
   }
 
   public Product updateProduct(Long id, Product updatedProduct) {
@@ -46,8 +53,12 @@ public class ProductService {
     return productRepository.save(updatedProduct);
   }
 
-  public void deleteProduct(Long id) {
-    productRepository.deleteById(id);
+  public void deleteProduct(UUID productId) {
+    Optional<Product> byId = productRepository.findByUuid(productId);
+    if (byId.isEmpty()) {
+      throw new RuntimeException("Product does not exist.");
+    }
+    productRepository.delete(byId.get());
   }
 
 }
