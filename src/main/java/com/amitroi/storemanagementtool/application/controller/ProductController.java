@@ -5,6 +5,7 @@ import com.amitroi.storemanagementtool.application.model.NewProductRequest;
 import com.amitroi.storemanagementtool.domain.entity.Product;
 import com.amitroi.storemanagementtool.domain.mapper.ProductMapper;
 import com.amitroi.storemanagementtool.domain.service.ProductService;
+import jakarta.validation.Valid;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
@@ -47,7 +48,8 @@ public class ProductController {
   }
 
   @PostMapping
-  public ResponseEntity<String> addProduct(@RequestBody NewProductRequest newProductRequest) {
+  public ResponseEntity<String> addProduct(
+      @Valid @RequestBody NewProductRequest newProductRequest) {
     Product toBeAdded = productMapper.newProductRequestToProduct(newProductRequest);
     Product addedProduct = productService.saveProduct(toBeAdded);
     URI location = UriComponentsBuilder.fromPath("/api/v1/products/{productId}")

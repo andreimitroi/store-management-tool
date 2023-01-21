@@ -1,8 +1,11 @@
 package com.amitroi.storemanagementtool.domain.service;
 
+import static java.lang.String.format;
 import static java.util.Objects.isNull;
 
 import com.amitroi.storemanagementtool.domain.entity.Product;
+import com.amitroi.storemanagementtool.domain.exception.CustomException;
+import com.amitroi.storemanagementtool.domain.exception.CustomException.ExceptionType;
 import com.amitroi.storemanagementtool.domain.repository.ProductRepository;
 import java.util.List;
 import java.util.Optional;
@@ -16,6 +19,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class ProductService {
 
+  private static final String WRONG_UUID_MESSAGE = "UUID: %s";
   private final ProductRepository productRepository;
 
   public List<Product> findAllProducts() {
@@ -25,7 +29,7 @@ public class ProductService {
   public Product findProduct(UUID productId) {
     Optional<Product> byId = productRepository.findByUuid(productId);
     if (byId.isEmpty()) {
-      throw new RuntimeException("Product does not exist.");
+      throw new CustomException(ExceptionType.JPA_STUFF, format(WRONG_UUID_MESSAGE, productId));
     }
     return byId.get();
   }
@@ -56,7 +60,7 @@ public class ProductService {
   public void deleteProduct(UUID productId) {
     Optional<Product> byId = productRepository.findByUuid(productId);
     if (byId.isEmpty()) {
-      throw new RuntimeException("Product does not exist.");
+      throw new CustomException(ExceptionType.JPA_STUFF, format(WRONG_UUID_MESSAGE, productId));
     }
     productRepository.delete(byId.get());
   }
