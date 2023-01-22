@@ -4,10 +4,10 @@ import static java.lang.String.format;
 import static java.util.Objects.nonNull;
 
 import com.amitroi.storemanagementtool.application.model.ProductUpdate;
+import com.amitroi.storemanagementtool.domain.checker.update.UpdateChecker;
 import com.amitroi.storemanagementtool.domain.checker.update.strategy.NameCheckStrategy;
 import com.amitroi.storemanagementtool.domain.checker.update.strategy.PriceCheckStrategy;
 import com.amitroi.storemanagementtool.domain.checker.update.strategy.QuantityCheckStrategy;
-import com.amitroi.storemanagementtool.domain.checker.update.UpdateChecker;
 import com.amitroi.storemanagementtool.domain.entity.Product;
 import com.amitroi.storemanagementtool.domain.exception.CustomException;
 import com.amitroi.storemanagementtool.domain.exception.CustomException.ExceptionType;
@@ -37,7 +37,7 @@ public class ProductService {
   public Product findProduct(UUID productId) {
     Optional<Product> byId = productRepository.findByUuid(productId);
     if (byId.isEmpty()) {
-      throw new CustomException(ExceptionType.JPA_STUFF, format(WRONG_UUID_MESSAGE, productId));
+      throw new CustomException(ExceptionType.GENERAL, format(WRONG_UUID_MESSAGE, productId));
     }
     return byId.get();
   }
@@ -57,7 +57,7 @@ public class ProductService {
     Optional<Product> productByUuid = productRepository.findByUuid(productId);
 
     if (productByUuid.isEmpty()) {
-      throw new CustomException(ExceptionType.JPA_STUFF, format(WRONG_UUID_MESSAGE, productId));
+      throw new CustomException(ExceptionType.GENERAL, format(WRONG_UUID_MESSAGE, productId));
     }
     Product productToUpdate = productByUuid.get();
     productMapper.updateProduct(productUpdate, productToUpdate);
@@ -82,7 +82,7 @@ public class ProductService {
   public void deleteProduct(UUID productId) {
     Optional<Product> byId = productRepository.findByUuid(productId);
     if (byId.isEmpty()) {
-      throw new CustomException(ExceptionType.JPA_STUFF, format(WRONG_UUID_MESSAGE, productId));
+      throw new CustomException(ExceptionType.GENERAL, format(WRONG_UUID_MESSAGE, productId));
     }
     productRepository.delete(byId.get());
   }

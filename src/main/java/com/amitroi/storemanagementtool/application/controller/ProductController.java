@@ -39,12 +39,14 @@ public class ProductController {
   }
 
   @GetMapping("/{productId}")
-  public ResponseEntity<ProductDto> getProduct(@PathVariable("productId") @org.hibernate.validator.constraints.UUID UUID id) {
+  public ResponseEntity<ProductDto> getProduct(
+      @PathVariable("productId") @org.hibernate.validator.constraints.UUID UUID id) {
     return ResponseEntity.ok(productMapper.productToProductDto(productService.findProduct(id)));
   }
 
   @DeleteMapping("/{productId}")
-  public ResponseEntity<String> deleteProduct(@PathVariable("productId") @org.hibernate.validator.constraints.UUID UUID id) {
+  public ResponseEntity<String> deleteProduct(
+      @PathVariable("productId") @org.hibernate.validator.constraints.UUID UUID id) {
     productService.deleteProduct(id);
     return ResponseEntity.ok().build();
   }
@@ -60,7 +62,8 @@ public class ProductController {
   }
 
   @PatchMapping("/{productId}")
-  public ResponseEntity<String> updateProduct(@PathVariable("productId") @org.hibernate.validator.constraints.UUID UUID productId,
+  public ResponseEntity<String> updateProduct(
+      @PathVariable("productId") @org.hibernate.validator.constraints.UUID UUID productId,
       @NotNull @RequestBody ProductUpdate productUpdate) {
     Product product = productService.updateProductPrice(productId, productUpdate);
     return ResponseEntity.ok(
