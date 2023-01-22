@@ -127,10 +127,16 @@ class ProductServiceTest {
   @DisplayName("Test updateProduct Validation Exception")
   void updateProductValidationExceptionTest() {
     UUID uuid = UUID.randomUUID();
-    ProductUpdate productUpdate = new ProductUpdate();
-    productUpdate.setName("");
 
-    assertThrows(CustomException.class, () -> productService.updateProduct(uuid, productUpdate));
+    List<ProductUpdate> testCases = List.of(
+        ProductUpdate.builder().name("").build(),
+        ProductUpdate.builder().price(new BigDecimal(-50)).build(),
+        ProductUpdate.builder().quantity(-10).build(),
+        ProductUpdate.builder().name("Valid_Name").price(new BigDecimal(-50)).build()
+    );
+
+    testCases.forEach(update -> assertThrows(CustomException.class,
+        () -> productService.updateProduct(uuid, update)));
   }
 
   @Test
@@ -166,6 +172,5 @@ class ProductServiceTest {
     mockedProduct.setName(name);
     return mockedProduct;
   }
-
 
 }
