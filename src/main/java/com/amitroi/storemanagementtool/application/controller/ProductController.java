@@ -2,10 +2,12 @@ package com.amitroi.storemanagementtool.application.controller;
 
 import com.amitroi.storemanagementtool.application.dto.ProductDto;
 import com.amitroi.storemanagementtool.application.model.NewProductRequest;
+import com.amitroi.storemanagementtool.application.model.ProductUpdate;
 import com.amitroi.storemanagementtool.domain.entity.Product;
 import com.amitroi.storemanagementtool.domain.mapper.ProductMapper;
 import com.amitroi.storemanagementtool.domain.service.ProductService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import java.net.URI;
 import java.util.List;
 import java.util.UUID;
@@ -37,12 +39,12 @@ public class ProductController {
   }
 
   @GetMapping("/{productId}")
-  public ResponseEntity<ProductDto> getProduct(@PathVariable("productId") UUID id) {
+  public ResponseEntity<ProductDto> getProduct(@PathVariable("productId") @org.hibernate.validator.constraints.UUID UUID id) {
     return ResponseEntity.ok(productMapper.productToProductDto(productService.findProduct(id)));
   }
 
   @DeleteMapping("/{productId}")
-  public ResponseEntity<String> deleteProduct(@PathVariable("productId") UUID id) {
+  public ResponseEntity<String> deleteProduct(@PathVariable("productId") @org.hibernate.validator.constraints.UUID UUID id) {
     productService.deleteProduct(id);
     return ResponseEntity.ok().build();
   }
@@ -57,16 +59,13 @@ public class ProductController {
     return ResponseEntity.created(location).build();
   }
 
-  /**
-   * Decide if going to update fields by replacing the entire product or do partial update via
-   * partial DTO or map
-   */
-
   @PatchMapping("/{productId}")
-  public ResponseEntity<String> updateProduct(@PathVariable("productId") Long id,
-      @RequestBody ProductDto productDto) {
-    return ResponseEntity.ok("Product with id: " + id + " updated: " + productDto);
+  public ResponseEntity<String> updateProduct(@PathVariable("productId") @org.hibernate.validator.constraints.UUID UUID productId,
+      @NotNull @RequestBody ProductUpdate productUpdate) {
+    Product product = productService.updateProductPrice(productId, productUpdate);
+    return ResponseEntity.ok(
+        "Product with id: " + productId + " updated: " + productMapper.productToProductDto(
+            product));
   }
 
-  //TODO implement changePrice, changeQuantity as separate endpoints?
 }

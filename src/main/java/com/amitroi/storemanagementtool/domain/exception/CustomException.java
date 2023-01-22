@@ -10,7 +10,8 @@ public class CustomException extends RuntimeException {
   public enum ExceptionType {
     GENERAL,
     OTHER_REASON,
-    JPA_STUFF
+    JPA_STUFF,
+    VALIDATION
   }
 
   private final ExceptionType type;

@@ -1,11 +1,17 @@
 package com.amitroi.storemanagementtool.domain.service;
 
 import static java.lang.String.format;
-import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
+import com.amitroi.storemanagementtool.application.model.ProductUpdate;
+import com.amitroi.storemanagementtool.domain.checker.update.strategy.NameCheckStrategy;
+import com.amitroi.storemanagementtool.domain.checker.update.strategy.PriceCheckStrategy;
+import com.amitroi.storemanagementtool.domain.checker.update.strategy.QuantityCheckStrategy;
+import com.amitroi.storemanagementtool.domain.checker.update.UpdateChecker;
 import com.amitroi.storemanagementtool.domain.entity.Product;
 import com.amitroi.storemanagementtool.domain.exception.CustomException;
 import com.amitroi.storemanagementtool.domain.exception.CustomException.ExceptionType;
+import com.amitroi.storemanagementtool.domain.mapper.ProductMapper;
 import com.amitroi.storemanagementtool.domain.repository.ProductRepository;
 import java.util.List;
 import java.util.Optional;
@@ -18,6 +24,8 @@ import org.springframework.stereotype.Service;
 @Service
 @RequiredArgsConstructor
 public class ProductService {
+
+  private final ProductMapper productMapper;
 
   private static final String WRONG_UUID_MESSAGE = "UUID: %s";
   private final ProductRepository productRepository;
@@ -44,17 +52,31 @@ public class ProductService {
     newProduct.setUuid(uuid);
   }
 
-  public Product updateProduct(Long id, Product updatedProduct) {
-    Optional<Product> productById = productRepository.findById(id);
+  public Product updateProductPrice(UUID productId, ProductUpdate productUpdate) {
+    checkUpdateValid(productUpdate);
+    Optional<Product> productByUuid = productRepository.findByUuid(productId);
 
-    if (productById.isEmpty()) {
-      //TODO create specific exception and throw it instead of a generic one
-      throw new RuntimeException("Product to be updated is not existing.");
+    if (productByUuid.isEmpty()) {
+      throw new CustomException(ExceptionType.JPA_STUFF, format(WRONG_UUID_MESSAGE, productId));
     }
-    if (isNull(updatedProduct.getId())) {
-      updatedProduct.setId(id);
+    Product productToUpdate = productByUuid.get();
+    productMapper.updateProduct(productUpdate, productToUpdate);
+    return productRepository.save(productToUpdate);
+  }
+
+  private void checkUpdateValid(ProductUpdate productUpdate) {
+    if (nonNull(productUpdate.getName())) {
+      UpdateChecker.builder().checkStrategy(new NameCheckStrategy()).build()
+          .checkUpdate(productUpdate);
     }
-    return productRepository.save(updatedProduct);
+    if (nonNull(productUpdate.getPrice())) {
+      UpdateChecker.builder().checkStrategy(new PriceCheckStrategy()).build()
+          .checkUpdate(productUpdate);
+    }
+    if (nonNull(productUpdate.getQuantity())) {
+      UpdateChecker.builder().checkStrategy(new QuantityCheckStrategy()).build()
+          .checkUpdate(productUpdate);
+    }
   }
 
   public void deleteProduct(UUID productId) {
