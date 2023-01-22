@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Version;
 import java.math.BigDecimal;
 import java.util.Objects;
 import java.util.UUID;
@@ -36,6 +37,8 @@ public class Product {
   private BigDecimal price;
   @Column(nullable = false)
   private Integer quantity;
+  @Version
+  private Integer version;
 
   @Override
   public boolean equals(Object o) {

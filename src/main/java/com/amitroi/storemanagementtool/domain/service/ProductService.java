@@ -13,15 +13,19 @@ import com.amitroi.storemanagementtool.domain.exception.CustomException;
 import com.amitroi.storemanagementtool.domain.exception.CustomException.ExceptionType;
 import com.amitroi.storemanagementtool.domain.mapper.ProductMapper;
 import com.amitroi.storemanagementtool.domain.repository.ProductRepository;
+import jakarta.persistence.LockModeType;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class ProductService {
 
@@ -51,6 +55,7 @@ public class ProductService {
     log.info("Assigned UUID {} to to product {}", newProduct.getUuid(), newProduct);
   }
 
+  @Lock(LockModeType.OPTIMISTIC)
   public Product updateProduct(UUID productId, ProductUpdate productUpdate) {
     checkUpdateValid(productUpdate);
     Optional<Product> productByUuid = productRepository.findByUuid(productId);
