@@ -6,6 +6,7 @@ import com.amitroi.storemanagementtool.application.model.ProductUpdate;
 import com.amitroi.storemanagementtool.domain.entity.Product;
 import com.amitroi.storemanagementtool.domain.mapper.ProductMapper;
 import com.amitroi.storemanagementtool.domain.service.ProductService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.net.URI;
@@ -30,30 +31,37 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequiredArgsConstructor
 public class ProductController {
 
+  public static final String RECEIVED_REQUEST_MESSAGE = "Handling {} request for product {}";
   private final ProductService productService;
   private final ProductMapper productMapper;
 
   @GetMapping
   public ResponseEntity<List<ProductDto>> getAllProducts() {
+    log.info("Handling GET all products request...");
     return ResponseEntity.ok(productMapper.productToProductDto(productService.findAllProducts()));
   }
 
   @GetMapping("/{productId}")
   public ResponseEntity<ProductDto> getProduct(
-      @PathVariable("productId") @org.hibernate.validator.constraints.UUID UUID id) {
-    return ResponseEntity.ok(productMapper.productToProductDto(productService.findProduct(id)));
+      @PathVariable("productId") @org.hibernate.validator.constraints.UUID UUID uuid,
+      HttpServletRequest request) {
+    log.info(RECEIVED_REQUEST_MESSAGE, request.getMethod(), uuid);
+    return ResponseEntity.ok(productMapper.productToProductDto(productService.findProduct(uuid)));
   }
 
   @DeleteMapping("/{productId}")
   public ResponseEntity<String> deleteProduct(
-      @PathVariable("productId") @org.hibernate.validator.constraints.UUID UUID id) {
-    productService.deleteProduct(id);
+      @PathVariable("productId") @org.hibernate.validator.constraints.UUID UUID uuid,
+      HttpServletRequest request) {
+    log.info(RECEIVED_REQUEST_MESSAGE, request.getMethod(), uuid);
+    productService.deleteProduct(uuid);
     return ResponseEntity.ok().build();
   }
 
   @PostMapping
   public ResponseEntity<String> addProduct(
-      @Valid @RequestBody NewProductRequest newProductRequest) {
+      @Valid @RequestBody NewProductRequest newProductRequest, HttpServletRequest request) {
+    log.info(RECEIVED_REQUEST_MESSAGE, request.getMethod(), newProductRequest);
     Product toBeAdded = productMapper.newProductRequestToProduct(newProductRequest);
     Product addedProduct = productService.saveProduct(toBeAdded);
     URI location = UriComponentsBuilder.fromPath("/api/v1/products/{productId}")
@@ -62,13 +70,12 @@ public class ProductController {
   }
 
   @PatchMapping("/{productId}")
-  public ResponseEntity<String> updateProduct(
+  public ResponseEntity<ProductDto> updateProduct(
       @PathVariable("productId") @org.hibernate.validator.constraints.UUID UUID productId,
-      @NotNull @RequestBody ProductUpdate productUpdate) {
-    Product product = productService.updateProductPrice(productId, productUpdate);
-    return ResponseEntity.ok(
-        "Product with id: " + productId + " updated: " + productMapper.productToProductDto(
-            product));
+      @NotNull @RequestBody ProductUpdate productUpdate, HttpServletRequest request) {
+    log.info(RECEIVED_REQUEST_MESSAGE, request.getMethod(), productUpdate); //log not too accurate
+    Product product = productService.updateProduct(productId, productUpdate);
+    return ResponseEntity.ok(productMapper.productToProductDto(product));
   }
 
 }

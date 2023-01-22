@@ -26,7 +26,6 @@ import org.springframework.stereotype.Service;
 public class ProductService {
 
   private final ProductMapper productMapper;
-
   private static final String WRONG_UUID_MESSAGE = "UUID: %s";
   private final ProductRepository productRepository;
 
@@ -48,23 +47,25 @@ public class ProductService {
   }
 
   private void assignUuid(Product newProduct) {
-    UUID uuid = UUID.randomUUID();
-    newProduct.setUuid(uuid);
+    newProduct.setUuid(UUID.randomUUID());
+    log.info("Assigned UUID {} to to product {}", newProduct.getUuid(), newProduct);
   }
 
-  public Product updateProductPrice(UUID productId, ProductUpdate productUpdate) {
+  public Product updateProduct(UUID productId, ProductUpdate productUpdate) {
     checkUpdateValid(productUpdate);
     Optional<Product> productByUuid = productRepository.findByUuid(productId);
 
     if (productByUuid.isEmpty()) {
       throw new CustomException(ExceptionType.GENERAL, format(WRONG_UUID_MESSAGE, productId));
     }
+    log.info("Found product to update for UUID {}", productId);
     Product productToUpdate = productByUuid.get();
     productMapper.updateProduct(productUpdate, productToUpdate);
     return productRepository.save(productToUpdate);
   }
 
   private void checkUpdateValid(ProductUpdate productUpdate) {
+    log.info("Checking if update values are valid...");
     if (nonNull(productUpdate.getName())) {
       UpdateChecker.builder().checkStrategy(new NameCheckStrategy()).build()
           .checkUpdate(productUpdate);

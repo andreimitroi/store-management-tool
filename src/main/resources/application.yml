@@ -1,4 +1,7 @@
 spring:
+  application:
+    name: store-management-tool
+
   datasource:
     url: jdbc:h2:mem:storedb
     username: sa
@@ -6,5 +9,17 @@ spring:
     driverClassName: org.h2.Driver
   jpa:
     spring.jpa.database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
   h2:
     console.enabled: true
+
+logging:
+  file:
+    name: ${spring.application.name}.log
+  level:
+    com.amitroi.storemanagementtool: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql.BasicBinder: TRACE
