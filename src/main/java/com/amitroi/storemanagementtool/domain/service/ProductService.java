@@ -1,18 +1,17 @@
 package com.amitroi.storemanagementtool.domain.service;
 
 import static java.lang.String.format;
-import static java.util.Objects.nonNull;
 
 import com.amitroi.storemanagementtool.application.model.ProductUpdate;
-import com.amitroi.storemanagementtool.domain.checker.update.UpdateChecker;
-import com.amitroi.storemanagementtool.domain.checker.update.strategy.NameCheckStrategy;
-import com.amitroi.storemanagementtool.domain.checker.update.strategy.PriceCheckStrategy;
-import com.amitroi.storemanagementtool.domain.checker.update.strategy.QuantityCheckStrategy;
 import com.amitroi.storemanagementtool.domain.entity.Product;
 import com.amitroi.storemanagementtool.domain.exception.CustomException;
 import com.amitroi.storemanagementtool.domain.exception.CustomException.ExceptionType;
 import com.amitroi.storemanagementtool.domain.mapper.ProductMapper;
 import com.amitroi.storemanagementtool.domain.repository.ProductRepository;
+import com.amitroi.storemanagementtool.domain.validator.NameValidator;
+import com.amitroi.storemanagementtool.domain.validator.PriceValidator;
+import com.amitroi.storemanagementtool.domain.validator.QuantityValidator;
+import com.amitroi.storemanagementtool.domain.validator.Validator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -54,7 +53,7 @@ public class ProductService {
   }
 
   public Product updateProduct(UUID productId, ProductUpdate productUpdate) {
-    checkUpdateValid(productUpdate);
+    validateUpdate(productUpdate);
     Optional<Product> productByUuid = productRepository.findByUuid(productId);
 
     if (productByUuid.isEmpty()) {
@@ -66,20 +65,14 @@ public class ProductService {
     return productRepository.save(productToUpdate);
   }
 
-  private void checkUpdateValid(ProductUpdate productUpdate) {
-    log.info("Checking if update values are valid...");
-    if (nonNull(productUpdate.getName())) {
-      UpdateChecker.builder().checkStrategy(new NameCheckStrategy()).build()
-          .checkUpdate(productUpdate);
-    }
-    if (nonNull(productUpdate.getPrice())) {
-      UpdateChecker.builder().checkStrategy(new PriceCheckStrategy()).build()
-          .checkUpdate(productUpdate);
-    }
-    if (nonNull(productUpdate.getQuantity())) {
-      UpdateChecker.builder().checkStrategy(new QuantityCheckStrategy()).build()
-          .checkUpdate(productUpdate);
-    }
+  private void validateUpdate(ProductUpdate productUpdate) {
+    Validator updateValidator = Validator.chain(
+        new NameValidator(),
+        new PriceValidator(),
+        new QuantityValidator()
+    );
+
+    updateValidator.validate(productUpdate);
   }
 
   public void deleteProduct(UUID productId) {
