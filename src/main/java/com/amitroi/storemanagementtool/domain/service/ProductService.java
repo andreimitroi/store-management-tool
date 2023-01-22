@@ -55,7 +55,6 @@ public class ProductService {
     log.info("Assigned UUID {} to to product {}", newProduct.getUuid(), newProduct);
   }
 
-  @Lock(LockModeType.OPTIMISTIC)
   public Product updateProduct(UUID productId, ProductUpdate productUpdate) {
     checkUpdateValid(productUpdate);
     Optional<Product> productByUuid = productRepository.findByUuid(productId);
